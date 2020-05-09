@@ -3,3 +3,4 @@ pytest-cov
 pyHamcrest
 flake8
 mypy
+wheel
