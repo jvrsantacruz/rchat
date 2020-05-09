@@ -4,3 +4,4 @@ pyHamcrest
 flake8
 mypy
 wheel
+pylint
