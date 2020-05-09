@@ -1,0 +1,7 @@
+pytest
+pytest-cov
+pyHamcrest
+flake8
+mypy
+wheel
+pylint
