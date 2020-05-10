@@ -21,14 +21,14 @@ PASS = "pass"
 USER_ID = "user-id"
 TOKEN = "token"
 PERSON = "user.name"
-CHANNEL = "channel"
+CHANNEL = "#channel"
 OPTIONS = {
     "url": dict(long="--url", default=URL, base=True),
     "user": dict(long="--user", default=USER, base=True),
     "user_id": dict(long="--user_id", default=USER_ID, base=True),
     "password": dict(long="--password", default=PASS, base=True),
     "token": dict(long="--token", default=TOKEN, base=True),
-    "to": dict(long="--to", default="#" + CHANNEL, base=False),
+    "to": dict(long="--to", default=CHANNEL, base=False),
 }
 
 
@@ -39,7 +39,11 @@ class default:
 class Base:
     def run(self, *args, **kwargs):
         runner = CliRunner()
-        return runner.invoke(cli, self.complete_command(args, kwargs))
+        invoke_kwargs = {}
+        invoke_kwargs.setdefault("input", kwargs.pop("input", None))
+        return runner.invoke(
+            cli, self.complete_command(args, kwargs), **invoke_kwargs
+        )
 
     def complete_command(
         self, command: Tuple[str], options: Dict[str, Union[str, default]]
@@ -106,6 +110,17 @@ class TestCliSend(Base):
         with patch("rchat.cli.Context.api", new_callable=PropertyMock) as mock:
             mock.return_value = api
             result = self.run("send", message, to=default, url=default)
+
+        api.chat_post_message.assert_called_with(message, channel=CHANNEL)
+        assert_that(result.exit_code, is_(0))
+
+    def test_it_should_get_input_from_stdin(self):
+        message = "Hello World!"
+        api = Mock(RocketChat)
+
+        with patch("rchat.cli.Context.api", new_callable=PropertyMock) as mock:
+            mock.return_value = api
+            result = self.run("send", to=default, url=default, input=message)
 
         api.chat_post_message.assert_called_with(message, channel=CHANNEL)
         assert_that(result.exit_code, is_(0))

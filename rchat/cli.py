@@ -51,11 +51,16 @@ def cli(ctx, **kwargs):
 @click.pass_context
 @error_handling
 def send(ctx, to, message):
-    """Send messages to users or channels"""
+    """Send messages to @users or #channels"""
+    if not message:
+        stdin = click.get_text_stream("stdin")
+        if not message and not stdin.isatty():
+            message = stdin.read().strip()
+
     if not message:
         raise click.BadArgumentUsage("Message cannot be empty")
 
-    ctx.obj.api.chat_post_message(message, channel=to.strip("#"))
+    ctx.obj.api.chat_post_message(message, channel=to)
 
 
 @dataclass
