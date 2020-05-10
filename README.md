@@ -1,4 +1,5 @@
 # rchat
+![build](https://github.com/jvrsantacruz/rchat/workflows/Python%20package/badge.svg?branch=master)
 
 A simple RocketChat command line client
 
