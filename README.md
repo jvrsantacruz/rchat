@@ -56,3 +56,8 @@ Or directly by calling *py.test*:
 - Allow for threads
 - Implement (pre|post) message hooks
 - Implement (pre|post) reaction hooks
+- Autocomplete names
+- Autocomplete channels
+- Open editor to compose message
+- Preview message in markdown viewer
+- Autoformat input as verbatim
