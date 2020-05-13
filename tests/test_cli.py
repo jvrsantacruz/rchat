@@ -5,12 +5,12 @@ from unittest.mock import Mock, PropertyMock, patch
 import pytest
 from click.testing import CliRunner
 from hamcrest import (
+    all_of,
     assert_that,
+    contains_string,
     has_entries,
     is_,
     starts_with,
-    contains_string,
-    all_of,
 )
 from rocketchat_API.rocketchat import RocketChat
 
@@ -23,12 +23,14 @@ USER_ID = "user-id"
 TOKEN = "token"
 PERSON = "user.name"
 CHANNEL = "#channel"
+CONFIG = "./config.toml"
 OPTIONS = {
     "url": dict(long="--url", default=URL, base=True),
     "user": dict(long="--user", default=USER, base=True),
     "user_id": dict(long="--user_id", default=USER_ID, base=True),
     "password": dict(long="--password", default=PASS, base=True),
     "token": dict(long="--token", default=TOKEN, base=True),
+    "config": dict(long="--config", default=CONFIG, base=True),
     "to": dict(long="--to", default=CHANNEL, base=False),
 }
 
@@ -95,6 +97,24 @@ class TestCli(Base):
             result.output, contains_string("Missing RocketChat server url")
         )
         assert_that(result.exit_code, is_(2))
+
+    def test_it_should_read_config_from_file(self, environ, tmp_path):
+        path = tmp_path / "config.toml"
+        with path.open("w") as stream:
+            stream.write(
+                f"""
+[rchat]
+server = "{URL}"
+user = "{USER}"
+password = "{PASS}"
+                         """
+            )
+
+        with patch("rchat.cli.Context") as context:
+            result = self.run("send", "test", config=str(path), to=default,)
+
+        context.assert_called_with(server=URL, password=PASS, user=USER)
+        assert_that(result.exit_code, is_(0))
 
 
 class TestCliSend(Base):
