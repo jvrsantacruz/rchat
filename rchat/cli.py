@@ -1,10 +1,11 @@
 """Simplistic rocket chat command line client"""
 import logging
 import functools
-from typing import Optional
+from typing import Optional, Any, Dict
 from dataclasses import dataclass, field
 
 import click
+import confight
 import requests
 from cached_property import cached_property
 from rocketchat_API.rocketchat import RocketChat
@@ -27,6 +28,9 @@ def error_handling(function):
 
 
 @click.group("rchat", context_settings=dict(auto_envvar_prefix="RCHAT"))
+@click.option(
+    "--config", type=click.Path(dir_okay=False), help="Username in RocketChat"
+)
 @click.option("--user", help="Username in RocketChat")
 @click.option("--user-id", help="User id associated to a Token")
 @click.option("--token", help="Personal Acces Token Name")
@@ -38,9 +42,22 @@ def error_handling(function):
 def cli(ctx, **kwargs):
     """Simple RocketChat command line client"""
     try:
-        ctx.obj = Context(**kwargs)
+        ctx.obj = Context(**get_config(kwargs))
     except ValueError as error:
         raise click.BadParameter(str(error)) from error
+
+
+def get_config(overrides: Dict[str, Any]) -> Dict[str, Any]:
+    """Read the config and merge with cli options"""
+    overrides = {k: v for k, v in overrides.items() if v is not None}
+    config_path = overrides.pop('config', None)
+    if config_path:
+        config = confight.load_paths([config_path])
+    else:
+        config = confight.load_app("rchat")
+    config = config.get('rchat') or {}
+    config.update(**overrides)
+    return config
 
 
 @cli.command()
@@ -65,7 +82,7 @@ def send(ctx, to, message):
 
 @dataclass
 class Context:
-    url: str = field()
+    url: Optional[str] = field(default=None)
     user: Optional[str] = field(default=None)
     password: Optional[str] = field(default=None)
     user_id: Optional[str] = field(default=None)
