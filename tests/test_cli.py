@@ -1,5 +1,6 @@
-from typing import List, Optional, Dict, Tuple, Union
-from unittest.mock import patch, PropertyMock, Mock
+import os
+from typing import Dict, List, Optional, Tuple, Union
+from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
 from click.testing import CliRunner
@@ -34,6 +35,17 @@ OPTIONS = {
 
 class default:
     """Placeholder for default value"""
+
+
+@pytest.fixture(scope="module")
+def environ():
+    previous = os.environ.copy()
+    for key in previous:
+        if key.startswith("RCHAT_"):
+            os.environ.pop(key)
+
+    yield previous
+    os.environ.update(previous)
 
 
 class Base:
@@ -76,7 +88,7 @@ class TestCli(Base):
 
         assert_that(result.exit_code, is_(0))
 
-    def test_it_should_validate_there_is_an_url_on_usage(self):
+    def test_it_should_validate_there_is_an_url_on_usage(self, environ):
         result = self.run("send")
 
         assert_that(
@@ -86,7 +98,7 @@ class TestCli(Base):
 
 
 class TestCliSend(Base):
-    def test_it_should_validate_at_least_one_recipient(self):
+    def test_it_should_validate_at_least_one_recipient(self, environ):
         result = self.run("send", url=default)
 
         assert_that(
@@ -97,13 +109,13 @@ class TestCliSend(Base):
         )
         assert_that(result.exit_code, is_(2))
 
-    def test_it_should_validate_at_least_one_message(self):
+    def test_it_should_validate_at_least_one_message(self, environ):
         result = self.run("send", url=default, to=default)
 
         assert_that(result.output, contains_string("Message cannot be empty"))
         assert_that(result.exit_code, is_(2))
 
-    def test_it_should_send_messages_to_channels(self):
+    def test_it_should_send_messages_to_channels(self, environ):
         message = "Hello World!"
         api = Mock(RocketChat)
 
@@ -114,7 +126,7 @@ class TestCliSend(Base):
         api.chat_post_message.assert_called_with(message, channel=CHANNEL)
         assert_that(result.exit_code, is_(0))
 
-    def test_it_should_get_input_from_stdin(self):
+    def test_it_should_get_input_from_stdin(self, environ):
         message = "Hello World!"
         api = Mock(RocketChat)
 
