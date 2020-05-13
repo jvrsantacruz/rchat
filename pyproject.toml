@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "rchat"
+version = "0.0.1"
+description = "A simple RocketChat command line client"
+authors = ["Javier Santacruz <javier.santacruz.lc@gmail.com>"]
+license = "GPL-3.0-only"
+readme = "README.md"
+homepage = "https://github.com/jvrsantacruz/rchat"
+repository = "https://github.com/jvrsantacruz/rchat"
+documentation = "https://github.com/jvrsantacruz/rchat"
+keywords = ["rocketchat", "command-line", "python"]
+classifiers = [
+  "Topic :: Communications :: Chat",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Programming Language :: Python :: 3.7",
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+click = "^7.1.2"
+rocketchat-API = "^1.3.1"
+cached-property = "^1.5.1"
+confight = "^1.3.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-cov = "*"
+pyHamcrest = "*"
+flake8 = "*"
+mypy = "*"
+wheel = "*"
+pylint = "*"
+
+[tool.poetry.scripts]
+rchat = "rchat.cli:cli"
+
+[tool.black]
+line-length = 79
+target-version = ["py37"]
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
