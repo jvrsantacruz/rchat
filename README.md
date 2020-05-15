@@ -1,5 +1,5 @@
 # rchat
-![build](https://github.com/jvrsantacruz/rchat/workflows/Python%20package/badge.svg?branch=master) 
+![build](https://github.com/jvrsantacruz/rchat/workflows/build/badge.svg)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 A simple RocketChat command line client
