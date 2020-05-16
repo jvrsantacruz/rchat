@@ -63,7 +63,7 @@ class Base:
         self, command: Tuple[str], options: Dict[str, Union[str, default]]
     ) -> List[str]:
         """Append default options"""
-        command = list(command)
+        command: List[str] = list(command)
         for key, value in options.items():
             meta = OPTIONS[key]
             if value is default:
