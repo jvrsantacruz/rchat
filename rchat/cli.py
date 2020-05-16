@@ -1,8 +1,8 @@
 """Simplistic rocket chat command line client"""
-import logging
 import functools
-from typing import Optional, Any, Dict
+import logging
 from dataclasses import dataclass, field
+from typing import Any, Dict, Optional
 
 import click
 import confight
@@ -50,12 +50,12 @@ def cli(ctx, **kwargs):
 def get_config(overrides: Dict[str, Any]) -> Dict[str, Any]:
     """Read the config and merge with cli options"""
     overrides = {k: v for k, v in overrides.items() if v is not None}
-    config_path = overrides.pop('config', None)
+    config_path = overrides.pop("config", None)
     if config_path:
         config = confight.load_paths([config_path])
     else:
         config = confight.load_app("rchat")
-    config = config.get('rchat') or {}
+    config = config.get("rchat") or {}
     config.update(**overrides)
     return config
 
