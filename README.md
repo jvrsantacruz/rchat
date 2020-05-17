@@ -92,7 +92,7 @@ Or directly by calling *py.test*:
 
 - [X] Send private messages
 - [X] Send message from stdin
-- [ ] Send message from files
+- [X] Send message from files
 - [ ] Upload files
 - [ ] Upload images
 - [ ] Read messages

@@ -1,6 +1,7 @@
 """Simplistic rocket chat command line client"""
 import functools
 import logging
+import sys
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
@@ -23,6 +24,7 @@ def error_handling(function):
         except Exception as error:  # pylint: disable=broad-except
             logging.exception(error)
             click.secho("Error: " + str(error), fg="red", err=True)
+            sys.exit(1)
 
     return handler
 
@@ -54,7 +56,7 @@ def get_config(overrides: Dict[str, Any]) -> Dict[str, Any]:
     if config_path:
         config = confight.load_paths([config_path])
     else:
-        config = confight.load_app("rchat")
+        config = confight.load_user_app("rchat")
     config = config.get("rchat") or {}
     config.update(**overrides)
     return config
@@ -64,12 +66,17 @@ def get_config(overrides: Dict[str, Any]) -> Dict[str, Any]:
 @click.option(
     "-t", "--to", required=True, help="Username or channel to chat to"
 )
+@click.option(
+    "-F", "--from-file", type=click.File(), help="Path to file to send"
+)
 @click.argument("message", required=False)
 @click.pass_context
 @error_handling
-def send(ctx, to, message):
+def send(ctx, to, message, from_file):
     """Send messages to @users or #channels"""
-    if not message:
+    if from_file:
+        message = from_file.read()
+    elif not message:
         stdin = click.get_text_stream("stdin")
         if not message and not stdin.isatty():
             message = stdin.read().strip()
