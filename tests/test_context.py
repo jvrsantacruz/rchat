@@ -15,7 +15,7 @@ class TestContext:
         with pytest.raises(ValueError):
             Context(url="")
 
-    def test_it_should_require_some_credentials(self):
+    def test_it_should_require_token_credentials(self):
         ctx = Context(url=URL, user="", password="", user_id="", token="")
 
         with pytest.raises(ValueError):
@@ -29,3 +29,8 @@ class TestContext:
         assert_that(
             ctx.credentials, has_entries(user_id=USER_ID, auth_token=TOKEN)
         )
+
+    def test_it_should_take_user_credentials(self):
+        ctx = Context(url=URL, user=USER, password=PASS)
+
+        assert_that(ctx.credentials, has_entries(user=USER, password=PASS))
