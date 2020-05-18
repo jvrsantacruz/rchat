@@ -104,7 +104,7 @@ Or directly by calling *py.test*:
 - [ ] Logging and debug
 - [ ] Debian Packaging
 - [ ] Bundled Packaging
-- [ ] Pypi version
+- [X] Pypi version
 - [ ] Versioning script
 - [ ] Improve startup time
 - [ ] Define groups of users
