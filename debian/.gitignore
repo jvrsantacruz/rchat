@@ -1,0 +1,7 @@
+rchat
+rchat.substvars
+debhelper-build-stamp
+files
+*.debhelper
+*.log
+tmp

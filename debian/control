@@ -1,0 +1,19 @@
+Source: rchat
+Section: devel
+Maintainer: Javier Santacruz <javier.santacruz.lc@gmail.com>
+Standards-Version: 4.0.0
+Build-Depends:
+    debhelper (>= 9),
+    dh-exec,
+    dh-python,
+    tox,
+    python3.8,
+    python3-dev,
+    python3.8-dev,
+    python3.8-venv,
+
+Package: rchat
+Architecture: all
+Depends: python3.8
+Pre-Depends: dpkg (>= 1.18), ${python:Depends}
+Description: A simple RocketChat command line client
