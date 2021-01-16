@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Dict, List, Tuple, Union
 from unittest.mock import ANY, Mock, patch
@@ -5,9 +6,8 @@ from unittest.mock import ANY, Mock, patch
 import pytest
 from click.testing import CliRunner
 from hamcrest import all_of, assert_that, contains_string, is_, starts_with
-from rocketchat_API.rocketchat import RocketChat
-
 from rchat.cli import Context, cli
+from rocketchat_API.rocketchat import RocketChat
 
 URL = "https://localhost:9999"
 USER = "user"
@@ -49,12 +49,24 @@ def environ():
 
 
 @pytest.fixture
-def context():
-    with patch("rchat.cli.Context") as context_type:
-        context = Mock(Context)
-        context.api = Mock(RocketChat)
-        context_type.return_value = context
-        yield context
+def api():
+    with patch("rchat.cli.RocketChat") as api:
+        yield api.return_value
+
+
+@pytest.fixture
+def context(api):
+    with patch("rchat.cli.Context") as ctx:
+        ctx.return_value.api = api
+        yield ctx
+
+
+@pytest.fixture
+def config() -> dict:
+    config = {'url': URL, 'user_id': USER_ID, 'token': TOKEN}
+    with patch('rchat.cli.get_config') as get_config:
+        get_config.return_value = config
+        yield config
 
 
 class Base:
@@ -105,7 +117,6 @@ class TestCli(Base):
         )
         assert_that(result.exit_code, is_(2))
 
-    @patch("rchat.cli.Context")
     def test_it_should_handle_uncontrolled_errors(self, context):
         context.side_effect = Exception("Boom!")
 
@@ -114,7 +125,7 @@ class TestCli(Base):
         assert_that(result.stdout, contains_string("Boom!"))
         assert_that(result.exit_code, is_(1))
 
-    def test_it_should_read_config_from_file(self, environ, tmp_path):
+    def test_it_should_read_config_from_file(self, environ, context, tmp_path):
         path = tmp_path / "config.toml"
         with path.open("w") as stream:
             stream.write(
@@ -126,8 +137,7 @@ password = "{PASS}"
                          """
             )
 
-        with patch("rchat.cli.Context") as context:
-            result = self.run("send", "test", config=str(path), to=default,)
+        result = self.run("send", "test", config=str(path), to=default)
 
         context.assert_called_with(server=URL, password=PASS, user=USER)
         assert_that(result.exit_code, is_(0))
@@ -140,7 +150,8 @@ class TestCliSend(Base):
         assert_that(
             result.output,
             all_of(
-                contains_string("Missing option"), contains_string("'--to'"),
+                contains_string("Missing option"),
+                contains_string("'--to'"),
             ),
         )
         assert_that(result.exit_code, is_(2))
@@ -151,34 +162,40 @@ class TestCliSend(Base):
         assert_that(result.output, contains_string("Message cannot be empty"))
         assert_that(result.exit_code, is_(2))
 
-    def test_it_should_send_messages_to_channels(self, context, environ):
+    def test_it_should_send_messages_to_channels(self, api, environ):
         message = "Hello World!"
 
         result = self.run("send", message, to=default, url=default)
 
-        context.api.chat_post_message.assert_called_with(
-            message, channel=CHANNEL
-        )
+        api.chat_post_message.assert_called_with(message, channel=CHANNEL)
         assert_that(result.exit_code, is_(0))
 
-    def test_it_should_get_input_from_stdin(self, context, environ):
+    def test_it_should_get_input_from_stdin(self, api, environ):
         message = "Hello World!"
 
         result = self.run("send", to=default, url=default, input=message)
 
-        context.api.chat_post_message.assert_called_with(
-            message, channel=CHANNEL
-        )
+        api.chat_post_message.assert_called_with(message, channel=CHANNEL)
         assert_that(result.exit_code, is_(0))
 
-    def test_it_should_send_file_contents(self, context, tmp_path):
+    def test_it_should_send_file_contents(self, api, tmp_path):
         path = tmp_path / FROM_FILE
         with path.open("w") as stream:
             stream.write(FILE_CONTENTS)
 
         result = self.run("send", to=default, url=default, from_file=path)
 
-        context.api.chat_post_message.assert_called_with(
+        api.chat_post_message.assert_called_with(
             FILE_CONTENTS, channel=CHANNEL
         )
         assert_that(result.exit_code, is_(0))
+
+    def test_it_should_resolve_aliases(self, api, config):
+        alias = "my-alias"
+        real_name = "@my-long-name"
+        message = "Hello!"
+        config['aliases'] = {alias: real_name}
+
+        result = self.run("send", message, to=alias)
+
+        api.chat_post_message.assert_called_with(message, channel=real_name)

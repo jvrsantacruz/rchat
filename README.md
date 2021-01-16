@@ -4,14 +4,14 @@
 
 A simple RocketChat command line client
 
-    rchat --to #team "Hello World!"
+    rchat send --to #team "Hello World!"
 
 ## Usage
 
 _rchat_ comes with a command line interface that allows you to send messages
 either to groups or direct people:
 
-    rchat --to @rita.cantaora "Hi Rita!"
+    rchat send --to @rita.cantaora "Hi Rita!"
 
 The message can also be piped into the program via stdin:
 
@@ -56,6 +56,18 @@ the rest.
 
 A specific config file can be given by passing the `--config` option or setting
 the `RCHAT_CONFIG` envvar.
+
+#### Aliases
+
+Use shorter names for certain contacts by declaring them in the config file:
+
+    [rchat.aliases]
+    "my-alias" = "@full-long-name"
+
+The string "my-alias" will then be expanded to "@full-long-name" before a
+message is sent:
+
+    rchat send --to my-alias "Hi!"
 
 ### Environment Variable
 
@@ -139,7 +151,7 @@ Or directly by calling *py.test*:
 - [ ] Versioning script
 - [ ] Improve startup time
 - [ ] Define groups of users
-- [ ] User aliases
+- [X] User aliases
 - [ ] Allow to get reactions
 - [ ] Allow for threads
 - [ ] Implement (pre|post) message hooks
