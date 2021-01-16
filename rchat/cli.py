@@ -11,6 +11,8 @@ import requests
 from cached_property import cached_property
 from rocketchat_API.rocketchat import RocketChat
 
+ConfigDict = Dict[str, Any]
+
 
 def error_handling(function):
     """Handle errors for click commands"""
@@ -49,7 +51,7 @@ def cli(ctx, **kwargs):
         raise click.BadParameter(str(error)) from error
 
 
-def get_config(overrides: Dict[str, Any]) -> Dict[str, Any]:
+def get_config(overrides: ConfigDict) -> ConfigDict:
     """Read the config and merge with cli options"""
     overrides = {k: v for k, v in overrides.items() if v is not None}
     config_path = overrides.pop("config", None)
@@ -60,6 +62,10 @@ def get_config(overrides: Dict[str, Any]) -> Dict[str, Any]:
     config = config.get("rchat") or {}
     config.update(**overrides)
     return config
+
+
+def resolve_alias(to: str, aliases: Dict[str, str]) -> str:
+    return str(aliases.get(to) or to)
 
 
 @cli.command()
@@ -84,7 +90,9 @@ def send(ctx, to, message, from_file):
     if not message:
         raise click.BadArgumentUsage("Message cannot be empty")
 
-    ctx.obj.api.chat_post_message(message, channel=to)
+    ctx.obj.api.chat_post_message(
+        message, channel=resolve_alias(to, ctx.obj.aliases)
+    )
 
 
 @dataclass
@@ -94,6 +102,7 @@ class Context:
     password: Optional[str] = field(default=None)
     user_id: Optional[str] = field(default=None)
     token: Optional[str] = field(default=None)
+    aliases: Optional[Dict[str, str]] = field(default_factory=dict)
 
     def __post_init__(self):
         if not self.url:
