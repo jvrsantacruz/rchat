@@ -57,14 +57,14 @@ def api():
 @pytest.fixture
 def context(api):
     with patch("rchat.cli.Context") as ctx:
-        ctx.return_value.api = api
+        ctx.build.return_value.api = api
         yield ctx
 
 
 @pytest.fixture
 def config() -> dict:
-    config = {'url': URL, 'user_id': USER_ID, 'token': TOKEN}
-    with patch('rchat.cli.get_config') as get_config:
+    config = {"url": URL, "user_id": USER_ID, "token": TOKEN}
+    with patch("rchat.cli.get_config") as get_config:
         get_config.return_value = config
         yield config
 
@@ -118,7 +118,7 @@ class TestCli(Base):
         assert_that(result.exit_code, is_(2))
 
     def test_it_should_handle_uncontrolled_errors(self, context):
-        context.side_effect = Exception("Boom!")
+        context.build.side_effect = Exception("Boom!")
 
         result = self.run("send")
 
@@ -139,7 +139,9 @@ password = "{PASS}"
 
         result = self.run("send", "test", config=str(path), to=default)
 
-        context.assert_called_with(server=URL, password=PASS, user=USER)
+        context.build.assert_called_with(
+            dict(server=URL, password=PASS, user=USER)
+        )
         assert_that(result.exit_code, is_(0))
 
 
@@ -194,7 +196,7 @@ class TestCliSend(Base):
         alias = "my-alias"
         real_name = "@my-long-name"
         message = "Hello!"
-        config['aliases'] = {alias: real_name}
+        config["aliases"] = {alias: real_name}
 
         result = self.run("send", message, to=alias)
 

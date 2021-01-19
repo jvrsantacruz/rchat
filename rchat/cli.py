@@ -2,7 +2,7 @@
 import functools
 import logging
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from typing import Any, Dict, Optional
 
 import click
@@ -46,7 +46,7 @@ def error_handling(function):
 def cli(ctx, **kwargs):
     """Simple RocketChat command line client"""
     try:
-        ctx.obj = Context(**get_config(kwargs))
+        ctx.obj = Context.build(get_config(kwargs))
     except ValueError as error:
         raise click.BadParameter(str(error)) from error
 
@@ -109,6 +109,13 @@ class Context:
     user_id: Optional[str] = field(default=None)
     token: Optional[str] = field(default=None)
     aliases: Optional[dict] = field(default_factory=dict)
+
+    @classmethod
+    def build(cls, config: ConfigDict):
+        known_fields = {f.name for f in fields(cls)}
+        if invalid_fields := set(config) - known_fields:
+            print(f"WARNING: ignoring unknown config fields {invalid_fields}")
+        return cls(**{f: config[f] for f in set(config) & known_fields})
 
     def __post_init__(self):
         if not self.url:
