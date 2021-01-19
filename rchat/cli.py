@@ -108,7 +108,7 @@ class Context:
     password: Optional[str] = field(default=None)
     user_id: Optional[str] = field(default=None)
     token: Optional[str] = field(default=None)
-    aliases: Optional[Dict[str, str]] = field(default_factory=dict)
+    aliases: Optional[dict] = field(default_factory=dict)
 
     def __post_init__(self):
         if not self.url:
