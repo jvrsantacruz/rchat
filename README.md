@@ -148,7 +148,7 @@ Or directly by calling *py.test*:
 - [X] Debian Packaging
 - [ ] Bundled Packaging
 - [X] Pypi version
-- [ ] Versioning script
+- [X] Versioning script
 - [ ] Improve startup time
 - [ ] Define groups of users
 - [X] User aliases
