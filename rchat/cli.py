@@ -55,10 +55,16 @@ def get_config(overrides: ConfigDict) -> ConfigDict:
     """Read the config and merge with cli options"""
     overrides = {k: v for k, v in overrides.items() if v is not None}
     config_path = overrides.pop("config", None)
-    if config_path:
-        config = confight.load_paths([config_path])
-    else:
-        config = confight.load_user_app("rchat")
+    try:
+        if config_path:
+            config = confight.load_paths([config_path])
+        else:
+            config = confight.load_user_app("rchat")
+    except Exception as error:  # pylint: disable=broad-except
+        raise click.ClickException(
+            f"Could not load config ({config_path}): {error}"
+        ) from error
+
     config = config.get("rchat") or {}
     config.update(**overrides)
     return config
