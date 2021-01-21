@@ -46,9 +46,13 @@ def error_handling(function):
 def cli(ctx, **kwargs):
     """Simple RocketChat command line client"""
     try:
-        ctx.obj = Context.build(get_config(kwargs))
+        ctx.obj = get_context(kwargs)
     except ValueError as error:
         raise click.BadParameter(str(error)) from error
+
+
+def get_context(kwargs):
+    return Context.build(get_config(kwargs))
 
 
 def get_config(overrides: ConfigDict) -> ConfigDict:

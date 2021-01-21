@@ -143,7 +143,7 @@ Or directly by calling *py.test*:
 - [ ] Autocomplete emojis
 - [ ] Autocomplete users
 - [ ] Autocomplete channels
-- [ ] Config file
+- [X] Config file
 - [ ] Logging and debug
 - [X] Debian Packaging
 - [ ] Bundled Packaging
