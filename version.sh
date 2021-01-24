@@ -12,12 +12,16 @@ if ! command -v gbp &> /dev/null; then
     exit 1
 fi
 
-declare -r VERSION=$1
+declare -r VERSION_SPEC=$1
+declare VERSION=""
 declare -rx DEBFULLNAME=$(git config user.name)
 declare -rx DEBEMAIL=$(git config user.email)
 
 echo "Running tests"
 tox --recreate > /dev/null
+poetry version "${VERSION_SPEC}"
+VERSION=$(poetry version --short)
+echo "Releasing version $VERSION"
 gbp dch \
     --new-version "$VERSION" \
     --distribution "$(lsb_release -sc)" \
