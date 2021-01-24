@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rchat"
-version = "0.0.2"
+version = "0.2.1"
 description = "A simple RocketChat command line client"
 authors = ["Javier Santacruz <javier.santacruz.lc@gmail.com>"]
 license = "GPL-3.0-only"

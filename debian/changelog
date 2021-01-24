@@ -1,5 +1,11 @@
 rchat (0.2.1) focal; urgency=medium
 
+  * UNRELEASED
+
+ -- Javier Santacruz <javier.santacruz.lc@gmail.com>  Thu, 21 Jan 2021 16:45:28 +0100
+
+rchat (0.2.1) focal; urgency=medium
+
   * [32dba3d6] Adds version script
   * [f456c2b3] Handle config loading errors
   * [9be5d378] Adds linting to tests in tox
