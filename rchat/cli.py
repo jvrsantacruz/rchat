@@ -86,13 +86,21 @@ def resolve_alias(to: str, aliases: Dict[str, str]) -> str:
     "-F", "--from-file", type=click.File(), help="Path to file to send"
 )
 @click.option(
-    "--code", is_flag=True,
-    help="Present message as code wrapped in markdown triple backticks"
+    "--code",
+    is_flag=True,
+    help="Present message as code wrapped in markdown triple backticks",
+)
+@click.option(
+    "--lang",
+    help="Combine with --code to set a specific highlighting scheme. "
+    "eg: 'python'",
 )
 @click.argument("message", required=False)
 @click.pass_context
 @error_handling
-def send(ctx, to, message, from_file, code):
+def send(
+    ctx, to, message, from_file, code: Optional[bool], lang: Optional[str]
+):
     """Send messages to @users or #channels"""
     if from_file:
         message = from_file.read()
@@ -105,7 +113,8 @@ def send(ctx, to, message, from_file, code):
         raise click.BadArgumentUsage("Message cannot be empty")
 
     if code:
-        message = f"```{message}```"
+        prefix = f"{lang}\n" if lang else ''
+        message = f"```{prefix}{message}```"
 
     ctx.obj.api.chat_post_message(
         message, channel=resolve_alias(to, ctx.obj.aliases)
