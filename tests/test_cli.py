@@ -5,7 +5,8 @@ from unittest.mock import ANY, Mock, patch
 
 import pytest
 from click.testing import CliRunner
-from hamcrest import all_of, assert_that, contains_string, is_, starts_with
+from hamcrest import (all_of, assert_that, contains_string, has_properties,
+                      is_, starts_with)
 from rchat.cli import Context, cli
 from rocketchat_API.rocketchat import RocketChat
 
@@ -27,6 +28,7 @@ OPTIONS = {
     "config": dict(long="--config", default=CONFIG, base=True),
     "to": dict(long="--to", default=CHANNEL, base=False),
     "from_file": dict(long="--from-file", default=FROM_FILE, base=False),
+    "code": dict(long="--code", default=None, base=False, flag=True),
 }
 FILE_CONTENTS = """
 \t💩 file contents
@@ -84,13 +86,18 @@ class Base:
         """Append default options"""
         command: List[str] = list(command)
         for key, value in options.items():
-            meta = OPTIONS[key]
+            meta = OPTIONS.get(key)
+            if meta is None:
+                raise ValueError(f"Unknown option {key}")
+
             if value is default:
                 value = meta["default"]
 
             if meta["base"]:
                 command.insert(0, value)
                 command.insert(0, meta["long"])
+            elif meta.get("flag"):
+                command.extend([meta["long"]])
             else:
                 command.extend([meta["long"], value])
 
@@ -201,3 +208,14 @@ class TestCliSend(Base):
         result = self.run("send", message, to=alias)
 
         api.chat_post_message.assert_called_with(message, channel=real_name)
+        assert_that(result.exit_code, is_(0))
+
+    def test_it_should_present_messages_as_code(self, api, config):
+        message = "Hello!\nWrapped!"
+
+        result = self.run("send", message, to=default, code="true")
+
+        assert_that(result, has_properties(exit_code=is_(0)))
+        api.chat_post_message.assert_called_with(
+            f"```{message}```", channel=CHANNEL
+        )
