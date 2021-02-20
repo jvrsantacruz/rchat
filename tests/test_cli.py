@@ -26,9 +26,10 @@ OPTIONS = {
     "password": dict(long="--password", default=PASS, base=True),
     "token": dict(long="--token", default=TOKEN, base=True),
     "config": dict(long="--config", default=CONFIG, base=True),
-    "to": dict(long="--to", default=CHANNEL, base=False),
-    "from_file": dict(long="--from-file", default=FROM_FILE, base=False),
-    "code": dict(long="--code", default=None, base=False, flag=True),
+    "to": dict(long="--to", default=CHANNEL),
+    "from_file": dict(long="--from-file", default=FROM_FILE),
+    "code": dict(long="--code", default=None, flag=True),
+    "lang": dict(long="--lang", default=None),
 }
 FILE_CONTENTS = """
 \t💩 file contents
@@ -93,11 +94,11 @@ class Base:
             if value is default:
                 value = meta["default"]
 
-            if meta["base"]:
+            if meta.get('base'):
                 command.insert(0, value)
                 command.insert(0, meta["long"])
             elif meta.get("flag"):
-                command.extend([meta["long"]])
+                command.append(meta["long"])
             else:
                 command.extend([meta["long"], value])
 
@@ -218,4 +219,16 @@ class TestCliSend(Base):
         assert_that(result, has_properties(exit_code=is_(0)))
         api.chat_post_message.assert_called_with(
             f"```{message}```", channel=CHANNEL
+        )
+
+    def test_it_should_add_lang_highlighting_to_code(self, api, config):
+        message = "Hello!\nWrapped!"
+
+        result = self.run(
+            "send", message, to=default, code="true", lang="python"
+        )
+
+        assert_that(result, has_properties(exit_code=is_(0)))
+        api.chat_post_message.assert_called_with(
+            f"```python\n{message}```", channel=CHANNEL
         )
