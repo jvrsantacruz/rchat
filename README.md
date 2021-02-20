@@ -15,7 +15,12 @@ either to groups or direct people:
 
 The message can also be piped into the program via stdin:
 
-    echo "Hi!" | rchat --to #team
+    echo "Hi!" | rchat send --to #team
+
+For the common case of sending a verbatim text, a `--code` flag can be passed
+so the message is formatted as markdown code block:
+
+    cat script.py | rchat send --to @helper --code --lang python
 
 See help for more information:
 
