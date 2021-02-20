@@ -1,3 +1,10 @@
+rchat (0.3.0) focal; urgency=medium
+
+  * [cd8137ec] Adds send `--code` option to format input as code
+  * [d71b133d] Adds send `--lang` option to set code highlight scheme
+
+ -- Javier Santacruz <javier.santacruz.lc@gmail.com>  Sat, 20 Feb 2021 14:26:32 +0100
+
 rchat (0.2.2) focal; urgency=medium
 
   * Update build info
