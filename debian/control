@@ -14,6 +14,6 @@ Build-Depends:
 
 Package: rchat
 Architecture: all
-Depends: python3.8
+Depends: python3.11
 Pre-Depends: dpkg (>= 1.18), ${python:Depends}
 Description: A simple RocketChat command line client
