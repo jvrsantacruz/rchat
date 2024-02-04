@@ -122,10 +122,9 @@ From the root of the application directory, create a python environment,
 install the application in development mode along with its dependencies and
 run it locally:
 
-    virtualenv env
-    . env/bin/activate
-    pip install --upgrade pip
-    pip install -e . -r requirements.txt -r dev-requirements.txt
+    pip install poetry
+    poetry shell
+    poetry install
 
 Tests can be run using *tox* (recommended):
 

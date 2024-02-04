@@ -31,6 +31,8 @@ flake8 = "*"
 mypy = "*"
 wheel = "*"
 pylint = "*"
+types-requests = "^2.31.0.20240125"
+pyright = "^1.1.349"
 
 [tool.poetry.scripts]
 rchat = "rchat.cli:cli"
@@ -38,7 +40,7 @@ rchat = "rchat.cli:cli"
 [tool.black]
 line-length = 79
 target-version = ["py37"]
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
 
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

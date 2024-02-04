@@ -1,6 +1,5 @@
 import json
 import os
-from typing import Dict, List, Tuple, Union
 from unittest.mock import ANY, Mock, patch
 
 import pytest
@@ -53,7 +52,7 @@ def environ():
 
 @pytest.fixture
 def api():
-    with patch("rchat.cli.RocketChat") as api:
+    with patch("rchat.context.RocketChat") as api:
         yield api.return_value
 
 
@@ -66,10 +65,10 @@ def context(api):
 
 @pytest.fixture
 def config() -> dict:
-    config = {"url": URL, "user_id": USER_ID, "token": TOKEN}
+    config_values = {"url": URL, "user_id": USER_ID, "token": TOKEN}
     with patch("rchat.cli.get_config") as get_config:
-        get_config.return_value = config
-        yield config
+        get_config.return_value = config_values
+        yield config_values
 
 
 class Base:
@@ -82,10 +81,10 @@ class Base:
         )
 
     def complete_command(
-        self, command: Tuple[str], options: Dict[str, Union[str, default]]
-    ) -> List[str]:
+        self, command: tuple[str], options: dict[str, str | default]
+    ) -> list[str]:
         """Append default options"""
-        command: List[str] = list(command)
+        command: list[str] = list(command)
         for key, value in options.items():
             meta = OPTIONS.get(key)
             if meta is None:
@@ -94,7 +93,7 @@ class Base:
             if value is default:
                 value = meta["default"]
 
-            if meta.get('base'):
+            if meta.get("base"):
                 command.insert(0, value)
                 command.insert(0, meta["long"])
             elif meta.get("flag"):
