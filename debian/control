@@ -7,7 +7,6 @@ Build-Depends:
     dh-exec,
     dh-python,
     tox,
-    ${misc:Depends},
     python3.11,
     python3.11-dev,
     python3.11-venv,

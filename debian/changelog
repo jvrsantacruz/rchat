@@ -1,3 +1,11 @@
+rchat (0.4) focal; urgency=medium
+
+  * [06b9ab75] Update README with --code --lang usage
+  * [be42b674] Update dependencies to python3.11
+  * [829c0fb5] Rewrite app and update deps to python3.11
+
+ -- Javier Santacruz <javier.santacruz.lc@gmail.com>  Wed, 07 Feb 2024 12:34:17 +0100
+
 rchat (0.3.0) focal; urgency=medium
 
   * [cd8137ec] Adds send `--code` option to format input as code
