@@ -1,23 +1,16 @@
 #!/usr/bin/make -f
 
 # Use for debug building
-# export DH_VERBOSE=1
+export DH_VERBOSE=1
 
 %:
-	dh $@ --buildsystem=pybuild
+	dh $@
 
 
 override_dh_auto_build:
-	tox -e package
+	python3.11 -m venv env
+	env/bin/pip install pip tox -U
+	env/bin/tox -e package
 
 override_dh_compress:
 	dh_compress --exclude=README.md
-
-override_dh_auto_clean:
-	@echo Please dont fail
-
-override_dh_python3:
-	@echo Please dont python me
-
-override_dh_auto_test:
-	@echo Please dont python me

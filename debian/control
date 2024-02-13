@@ -5,7 +5,6 @@ Standards-Version: 4.0.0
 Build-Depends:
     debhelper (>= 9),
     dh-exec,
-    dh-python,
     tox,
     python3.11,
     python3.11-dev,
